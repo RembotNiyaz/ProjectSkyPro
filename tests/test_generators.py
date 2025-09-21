@@ -1,6 +1,6 @@
 import pytest
 
-from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
+from src.generators import card_number_generator, filter_by_currency, transaction_descriptions
 
 # Тестовые данные для filter_by_currency
 transactions = [
@@ -59,7 +59,4 @@ def test_transaction_descriptions():
 def test_card_number_generator():
     generator = card_number_generator(1, 3)
     result = list(generator)
-    assert result == [
-        "0000 0000 0000 0001",
-        "0000 0000 0000 0002",
-        "0000 0000 0000 0003"]
+    assert result == ["0000 0000 0000 0001", "0000 0000 0000 0002", "0000 0000 0000 0003"]
