@@ -1,12 +1,13 @@
 import functools
 
+
 def log(filename=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # Определяем способ логирования
             if filename:
-                with open(filename, 'a') as f:
+                with open(filename, "a") as f:
                     try:
                         f.write(f"{func.__name__} начало\n")
                         result = func(*args, **kwargs)
@@ -24,5 +25,7 @@ def log(filename=None):
                 except Exception as e:
                     print(f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}")
                     raise
+
         return wrapper
+
     return decorator
