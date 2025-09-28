@@ -5,26 +5,26 @@ def log(filename=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            # Определяем способ логирования
-            if filename:
-                with open(filename, "a") as f:
-                    try:
+            try:
+                if filename:
+                    with open(filename, "a") as f:
                         f.write(f"{func.__name__} начало\n")
                         result = func(*args, **kwargs)
                         f.write(f"{func.__name__} ok\n")
                         return result
-                    except Exception as e:
-                        f.write(f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}\n")
-                        raise
-            else:
-                try:
+                else:
                     print(f"{func.__name__} начало")
                     result = func(*args, **kwargs)
                     print(f"{func.__name__} ok")
                     return result
-                except Exception as e:
-                    print(f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}")
-                    raise
+            except Exception as e:
+                error_message = f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs}"
+                if filename:
+                    with open(filename, "a") as f:
+                        f.write(f"{error_message}\n")
+                else:
+                    print(error_message)
+                raise
 
         return wrapper
 
