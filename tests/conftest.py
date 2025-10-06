@@ -1,4 +1,6 @@
 import pytest
+import os
+from decorator.decorators import log
 
 
 @pytest.fixture
@@ -62,3 +64,39 @@ def sample_transactions():
             "to": "Счет 74489636417521191160",
         },
     ]
+
+
+@pytest.fixture(autouse=True)
+def cleanup():
+    yield
+    for file in ["test_success.log", "test_error.log"]:
+        if os.path.exists(file):
+            os.remove(file)
+
+
+# Тестовые функции
+@pytest.fixture
+def success_function():
+    @log(filename="test_success.log")
+    def add(x, y):
+        return x + y
+
+    return add
+
+
+@pytest.fixture
+def error_function():
+    @log(filename="test_error.log")
+    def faulty_func(x):
+        return x / "a"
+
+    return faulty_func
+
+
+@pytest.fixture
+def console_function():
+    @log()
+    def multiply(x, y):
+        return x * y
+
+    return multiply
