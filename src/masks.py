@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import datetime
+
 
 # Создаем директорию для логов, если её не существует
 if not os.path.exists("logs"):
@@ -36,7 +36,7 @@ def get_mask_card_number(card_numbers: str) -> str:
         else:
             logger.error(f"Неверный тип данных: {type(card_numbers)}. Ожидается str")
             return "Ошибка типа данных. Функция принмает данные str"
-    except Exception as e:
+    except Exception as error:
         logger.exception("Произошла непредвиденная ошибка при маскировке карты")
         return "Произошла ошибка при обработке данных"
 
@@ -55,6 +55,6 @@ def get_mask_account(account_number: str) -> str:
         else:
             logger.error(f"Неверный тип данных: {type(account_number)}. Ожидается str")
             return "Ошибка типа данных. Функция принмает данные str"
-    except Exception as e:
+    except Exception as error:
         logger.exception("Произошла непредвиденная ошибка при маскировке счета")
         return "Произошла ошибка при обработке данных"

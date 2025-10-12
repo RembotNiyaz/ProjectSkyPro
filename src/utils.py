@@ -50,6 +50,3 @@ def load_transactions(file_path: str) -> List[Dict]:
     except json.JSONDecodeError:
         logger.error(f"Ошибка декодирования JSON в файле: {file_path}")
         return []
-    except Exception as e:
-        logger.exception(f"Непредвиденная ошибка при загрузке файла: {file_path}")
-        return []
