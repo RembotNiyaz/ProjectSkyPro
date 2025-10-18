@@ -19,8 +19,8 @@ def convert_to_rubles(transaction: Dict) -> float:
     Returns:
         float: Сумма в рублях
     """
-    amount = transaction.get("amount", 0.0)
-    currency = transaction.get("currency", "RUB")
+    amount = transaction.get("operationAmount").get("amount")
+    currency = transaction.get("operationAmount").get("currency").get("code")
 
     if currency == "RUB":
         return float(amount)
