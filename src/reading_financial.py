@@ -43,18 +43,3 @@ def read_excel_transactions(file_path: str) -> List[Dict]:
         raise ValueError("Файл пуст")
 
 
-if __name__ == "__main__":
-    # Пример использования
-    try:
-        csv_transactions = read_csv_transactions("transactions.csv")
-        print("Транзакции из CSV:")
-        for tx in csv_transactions[:5]:
-            print(tx)
-
-        xlsx_transactions = read_excel_transactions("transactions_excel.xlsx")
-        print("\nТранзакции из XLSX:")
-        for tx in xlsx_transactions[:5]:
-            print(tx)
-
-    except Exception as e:
-        print(f"Ошибка: {str(e)}")

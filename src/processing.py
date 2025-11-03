@@ -23,3 +23,4 @@ def sort_by_date(dictionaries: list, state: bool = True) -> list:
         sorted_list = sorted(dictionaries, key=lambda x: x["date"])  # По возрастанию если значение False
 
     return sorted_list
+
