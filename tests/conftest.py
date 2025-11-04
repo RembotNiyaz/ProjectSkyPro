@@ -1,102 +1,59 @@
+from datetime import datetime as dt
+
+import pandas as pd
 import pytest
-import os
-from decorator.decorators import log
 
 
 @pytest.fixture
-def state_filter() -> list:
-    return [
-        {"id": 41428829, "state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
-        {"id": 939719570, "state": "EXECUTED", "date": "2018-06-30T02:08:58.425572"},
-        {"id": 594226727, "state": "CANCELED", "date": "2018-09-12T21:27:25.241689"},
-        {"id": 615064591, "state": "CANCELED", "date": "2018-10-14T08:21:33.419441"},
-    ]
+def sample_excel_file(tmp_path):
+    # Создаем временный Excel файл
+    df = pd.DataFrame({"col1": [1, 2], "col2": ["a", "b"]})
+    file_path = tmp_path / "operations.xlsx"
+    df.to_excel(file_path, index=False)
+    return str(file_path)
 
-
-@pytest.fixture
-def state_filter2() -> list:
-    return [
-        {"state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
-        {"id": 939719570, "state": "EXECUTED"},
-        {"id": 594226727, "state": "CANCELED", "date": "2018-09-12T21:27:25.241689"},
-        {"id": 615064591, "state": "CANCELED", "date": "2018-10-14T08:21:33.419441"},
-    ]
-
-
-@pytest.fixture
-def date_filter() -> list:
-    return [
-        {"id": 41428829, "state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
-        {"id": 939719570, "state": "EXECUTED", "date": "2018-06-30T02:08:58.425572"},
-        {"id": 594226727, "state": "CANCELED", "date": "2018-09-12T21:27:25.241689"},
-        {"id": 615064591, "state": "CANCELED", "date": "2018-10-14T08:21:33.419441"},
-    ]
-
+import pandas as pd
+from datetime import datetime as dt
 
 @pytest.fixture
 def sample_transactions():
+    data = {
+        "Дата операции": [
+            "2024-04-01",
+            "2024-04-01",
+            "2024-04-02",
+            "2024-04-02",
+            "2024-04-03",
+        ],
+        "Категория": [
+            "еда",
+            "транспорт",
+            "еда",
+            "развлечения",
+            "еда",
+        ],
+        "Сумма операции": [50.0, 20.0, 70.0, 100.0, 30.0],
+    }
+    df = pd.DataFrame(data)
+    df["Дата операции"] = pd.to_datetime(df["Дата операции"])
+    return df
+
+# Фикстура для данных транзакций для calculate_cashback_categories
+@pytest.fixture
+def cashback_data():
     return [
-        {
-            "id": 939719570,
-            "state": "EXECUTED",
-            "date": "2018-06-30T02:08:58.425572",
-            "operationAmount": {"amount": "9824.07", "currency": {"name": "USD", "code": "USD"}},
-            "description": "Перевод организации",
-            "from": "Счет 75106830613657916952",
-            "to": "Счет 11776614605963066702",
-        },
-        {
-            "id": 142264268,
-            "state": "EXECUTED",
-            "date": "2019-04-04T23:20:05.206878",
-            "operationAmount": {"amount": "79114.93", "currency": {"name": "USD", "code": "USD"}},
-            "description": "Перевод со счета на счет",
-            "from": "Счет 19708645243227258542",
-            "to": "Счет 75651667383060284188",
-        },
-        {
-            "id": 873106923,
-            "state": "EXECUTED",
-            "date": "2019-03-23T01:09:46.296404",
-            "operationAmount": {"amount": "43318.34", "currency": {"name": "руб.", "code": "RUB"}},
-            "description": "Перевод со счета на счет",
-            "from": "Счет 44812258784861134719",
-            "to": "Счет 74489636417521191160",
-        },
+        {'Дата операции': '2024-04-01', 'Категория': 'еда', 'Сумма операции': 100.0},
+        {'Дата операции': '2024-04-15', 'Категория': 'транспорт', 'Сумма операции': 50.0},
+        {'Дата операции': '2024-04-10', 'Категория': 'еда', 'Сумма операции': 200.0},
+        {'Дата операции': '2024-03-20', 'Категория': 'развлечения', 'Сумма операции': 300.0},
     ]
 
-
-@pytest.fixture(autouse=True)
-def cleanup():
-    yield
-    for file in ["test_success.log", "test_error.log"]:
-        if os.path.exists(file):
-            os.remove(file)
-
-
-# Тестовые функции
 @pytest.fixture
-def success_function():
-    @log(filename="test_success.log")
-    def add(x, y):
-        return x + y
-
-    return add
-
-
-@pytest.fixture
-def error_function():
-    @log(filename="test_error.log")
-    def faulty_func(x):
-        return x / "a"
-
-    return faulty_func
-
-
-@pytest.fixture
-def console_function():
-    @log()
-    def multiply(x, y):
-        return x * y
-
-    return multiply
+def simple_transactions():
+    data = {
+        'Дата операции': ['2024-01-01', '2024-02-01', '2024-03-01'],
+        'Категория': ['еда', 'развлечения', 'еда'],
+        'Сумма операции': [100, 200, 150]
+    }
+    df = pd.DataFrame(data)
+    return df
