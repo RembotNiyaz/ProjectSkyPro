@@ -1,81 +1,30 @@
-import unittest
-from unittest.mock import MagicMock, patch
+import pytest
+from src.main import Product, Category
 
-from main import main
+def test_product_initialization():
+    product = Product("Телефон", "Описание", 999.99, 10)
+    assert product.name == "Телефон"
+    assert product.description == "Описание"
+    assert product.price == 999.99
+    assert product.quantity == 10
 
-# Предположим, что весь ваш код находится в файле main.py
-# И вы экспортировали функцию main() или его часть для тестирования
-# Например, создадим обертку:
+def test_category_initialization():
+    product1 = Product("Телефон 1", "Описание 1", 500.0, 5)
+    product2 = Product("Телефон 2", "Описание 2", 700.0, 3)
+    category = Category("Категория телефонов", "Описание категории", [product1, product2])
+    assert category.name == "Категория телефонов"
+    assert category.description == "Описание категории"
+    assert category.products == [product1, product2]
+    # Проверка, что счетчики увеличились
+    assert Category.category_count >= 1
+    assert Category.product_count >= 2
 
+def test_counts_increment():
+    initial_category_count = Category.category_count
+    initial_product_count = Category.product_count
 
-def main_wrapper():
-    return main()
+    product = Product("Test Product", "Test Description", 100.0, 2)
+    category = Category("Test Category", "Test Description", [product])
 
-
-class TestTransactionProcessing(unittest.TestCase):
-
-    @patch("builtins.input")
-    @patch("builtins.print")
-    @patch("src.utils.load_transactions")
-    @patch("src.reading_financial.read_csv_transactions")
-    @patch("src.reading_financial.read_excel_transactions")
-    @patch("src.processing.filter_by_state")
-    @patch("src.processing.sort_by_date")
-    @patch("src.widget.get_date")
-    @patch("src.widget.mask_account_card")
-    @patch("src.process_bank_search")
-    def test_full_flow_json(
-        self,
-        mock_search,
-        mock_mask_card,
-        mock_get_date,
-        mock_sort,
-        mock_filter,
-        mock_read_excel,
-        mock_read_csv,
-        mock_load,
-        mock_print,
-        mock_input,
-    ):
-        # Мокаем последовательность вводов пользователя
-        mock_input.side_effect = [
-            "1",  # выбор JSON
-            "EXECUTED",  # статус
-            "да",  # сортировать
-            "по убыванию",  # сортировка по убыванию
-            "да",  # только рубли
-            "нет",  # фильтр по слову
-        ]
-
-        # Мокаем возвращаемые значения функций
-        mock_load.return_value = [
-            {
-                "date": "2023-01-01",
-                "description": "desc",
-                "operationAmount": {"amount": "100", "currency": {"code": "RUB"}},
-                "from": "1234567890",
-                "to": "0987654321",
-            }
-        ]
-        mock_filter.return_value = mock_load.return_value
-        mock_sort.return_value = mock_load.return_value
-        mock_get_date.return_value = "01.01.2023"
-        mock_mask_card.side_effect = lambda x: "****1234" if x else ""
-        mock_search.return_value = mock_load.return_value
-
-        result = main()
-
-        # Проверяем, что результат содержит ожидаемые строки
-        self.assertIn("Всего банковских операций в выборке: 1", result)
-        self.assertIn("01.01.2023", result)
-        self.assertIn("desc", result)
-        self.assertIn("****1234 -> ****1234", result)
-
-    @patch("builtins.input")
-    @patch("builtins.print")
-    @patch("src.utils.load_transactions")
-    def test_invalid_choice(self, mock_print, mock_input, mock_load):
-        mock_input.return_value = "5"  # некорректный выбор
-        result = main()
-        self.assertIsNone(result)
-        mock_print.assert_any_call("Некорректный выбор.")
+    assert Category.category_count == initial_category_count + 1
+    assert Category.product_count == initial_product_count + 1
