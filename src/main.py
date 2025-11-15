@@ -1,62 +1,67 @@
-import json
-import pandas as pd
-from datetime import datetime as dt
-from src import utils, views, services, reports
+class Product:
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        self.name = name
+        self.description = description
+        self.price = price
+        self.quantity = quantity
 
-def run_all_features():
-    """Запускает все реализованные функциональности и сохраняет результаты."""
-    print("Загружаем транзакции...")
-    df = utils.load_transactions()
 
-    # 1. Главная страница (пример для текущей даты)
-    print("Формируем главную страницу...")
-    main_result = views.main_page(dt.now().strftime('%Y-%m-%d %H:%M:%S'))
-    with open('output/main_page.json', 'w', encoding='utf-8') as f:
-        json.dump(main_result, f, ensure_ascii=False, indent=2)
+class Category:
+    category_count = 0
+    product_count = 0
 
-    # 2. Страница «События»
-    print("Формируем страницу «События»...")
-    events_result = views.events_page(df)
-    with open('output/events_page.json', 'w', encoding='utf-8') as f:
-        json.dump(events_result, f, ensure_ascii=False, indent=2)
+    def __init__(self, name: str, description: str, products: list):
+        self.name = name
+        self.description = description
+        self.products = products
+        # обновляем счетчики
+        Category.category_count += 1
+        Category.product_count += len(products)
 
-    # 3. Сервисы
-    print("Запускаем сервисы...")
-    # Выгодные категории кешбэка (пример: май 2024)
-    cashback = services.calculate_cashback_categories(
-        df, 2024, 5
-    )
-    with open('output/cashback_categories.json', 'w', encoding='utf-8') as f:
-        json.dump(cashback, f, ensure_ascii=False, indent=2)
-
-    # Инвесткопилка (пример: май 2024, лимит 100)
-    invest = services.investment_bank('2024-05', df, 100)
-    with open('output/investment_bank.json', 'w', encoding='utf-8') as f:
-        json.dump({"saved": invest}, f, ensure_ascii=False, indent=2)
-
-    # Простой поиск (пример: поиск «кофе»)
-    search = services.simple_search(df, 'кофе')
-    with open('output/simple_search.json', 'w', encoding='utf-8') as f:
-        json.dump(search, f, ensure_ascii=False, indent=2)
-
-    # 4. Отчёты
-    print("Формируем отчёты...")
-    # Траты по категории (пример: «Кафе и рестораны»)
-    spending_cat = reports.spending_by_category(
-        df, 'Кафе и рестораны', dt.now().strftime('%Y-%m-%d')
-    )
-
-    # Траты по дням недели
-    spending_weekday = reports.spending_by_weekday(
-        df, dt.now().strftime('%Y-%m-%d')
-    )
-
-    # Траты в рабочий/выходной день
-    spending_workday = reports.spending_by_workday(
-        df, dt.now().strftime('%Y-%m-%d')
-    )
-
-    print("Готово! Результаты сохранены в папке output/")
 
 if __name__ == "__main__":
-    run_all_features()
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
+
+    print(product1.name)
+    print(product1.description)
+    print(product1.price)
+    print(product1.quantity)
+
+    print(product2.name)
+    print(product2.description)
+    print(product2.price)
+    print(product2.quantity)
+
+    print(product3.name)
+    print(product3.description)
+    print(product3.price)
+    print(product3.quantity)
+
+    category1 = Category(
+        "Смартфоны",
+        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
+        [product1, product2, product3]
+    )
+
+    print(category1.name == "Смартфоны")
+    print(category1.description)
+    print(len(category1.products))
+    print(Category.category_count)
+    print(Category.product_count)
+
+    product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
+    category2 = Category(
+        "Телевизоры",
+        "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
+        [product4]
+    )
+
+    print(category2.name)
+    print(category2.description)
+    print(len(category2.products))
+    print(category2.products)
+
+    print(Category.category_count)
+    print(Category.product_count)
