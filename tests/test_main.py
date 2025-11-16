@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from src.main import Product, Category
 
 def test_product_initialization():
@@ -14,10 +15,12 @@ def test_category_initialization():
     category = Category("Категория телефонов", "Описание категории", [product1, product2])
     assert category.name == "Категория телефонов"
     assert category.description == "Описание категории"
-    assert category.products == [product1, product2]
-    # Проверка, что счетчики увеличились
-    assert Category.category_count >= 1
-    assert Category.product_count >= 2
+    # Проверка строкового отображения
+    expected_output = (
+        f"{product1.name}, {product1.price} руб. Остаток: {product1.quantity} шт.\n"
+        f"{product2.name}, {product2.price} руб. Остаток: {product2.quantity} шт.\n"
+    )
+    assert category.products == expected_output
 
 def test_counts_increment():
     initial_category_count = Category.category_count
@@ -28,3 +31,78 @@ def test_counts_increment():
 
     assert Category.category_count == initial_category_count + 1
     assert Category.product_count == initial_product_count + 1
+
+@patch('builtins.input', return_value='y')
+def test_price_reduction_confirm(mock_input):
+    product = Product("Test", "desc", 100, 10)
+    # Снижаем цену ниже текущей, подтверждение 'y'
+    product.price = 50
+    assert product.price == 50
+
+@patch('builtins.input', return_value='n')
+def test_price_reduction_cancel(mock_input):
+    product = Product("Test", "desc", 100, 10)
+    old_price = product.price
+    # Снижаем цену ниже текущей, подтверждение 'n'
+    product.price = 50
+    # Цена не должна измениться
+    assert product.price == old_price
+
+def test_price_negative_value():
+    product = Product("Test", "desc", 100, 10)
+    product.price = -50  # Некорректное изменение
+    assert product.price == 100  # Цена не должна измениться
+
+def test_new_product_method():
+    data = {
+        "name": "NewProd",
+        "description": "desc",
+        "price": 200,
+        "quantity": 5
+    }
+    product = Product.new_product(data)
+    assert isinstance(product, Product)
+    assert product.name == "NewProd"
+    assert product.description == "desc"
+    assert product.price == 200
+    assert product.quantity == 5
+
+def test_add_product_increases_count():
+    category = Category("TestCat", "desc", [])
+    initial_product_count = Category.product_count
+    product = Product("A", "desc", 10, 1)
+    category.add_product(product)
+    assert Category.product_count == initial_product_count + 1
+    assert product in category._Category__products
+
+def test_products_property():
+    product1 = Product("A", "desc", 10, 1)
+    product2 = Product("B", "desc", 20, 2)
+    category = Category("Test", "desc", [product1, product2])
+    output = category.products
+    assert "A" in output
+    assert "B" in output
+    assert "10 руб" in output
+    assert "20 руб" in output
+
+def test_add_duplicate_product():
+    product = Product("Dup", "desc", 100, 1)
+    category = Category("Cat", "desc", [product])
+    category.add_product(product)
+    # Проверка, что продукт не добавляется повторно или что происходит
+    # В зависимости от реализации, например:
+    assert category._Category__products.count(product) == 1
+
+def test_category_with_empty_products():
+    category = Category("EmptyCategory", "desc", [])
+    assert category.products == ""
+
+def test_set_negative_quantity():
+    product = Product("Test", "desc", 100, 5)
+    product.quantity = -3
+    assert product.quantity == 5  # Количество не должно измениться
+
+def test_set_negative_price():
+    product = Product("Test", "desc", 100, 5)
+    product.price = -10
+    assert product.price == 100  # Цена не должна измениться
