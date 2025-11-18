@@ -2,23 +2,23 @@ class Product:
     def __init__(self, name: str, description: str, price: float, quantity: int):
         self.name = name
         self.description = description
-        self._price = price  # приватный атрибут цены
-        self._quantity = quantity  # приватный атрибут количества
+        self.__price = price  # приватный атрибут цены с двойным подчеркиванием
+        self._quantity = quantity  # при необходимости тоже можно сделать приватным
 
     @property
     def price(self):
-        return self._price
+        return self.__price
 
     @price.setter
     def price(self, new_price):
         if new_price >= 0:
             # Логика по снижению цены с подтверждением
-            if new_price < self._price:
-                answer = input(f"Вы хотите снизить цену с {self._price} до {new_price}. Продолжить? (y/n): ").lower()
+            if new_price < self.__price:
+                answer = input(f"Вы хотите снизить цену с {self.__price} до {new_price}. Продолжить? (y/n): ").lower()
                 if answer != "y":
                     print("Снижение цены отменено.")
                     return
-            self._price = new_price
+            self.__price = new_price
         else:
             print("Цена не должна быть отрицательной или нулевой.")
 
@@ -27,9 +27,9 @@ class Product:
         return self._quantity
 
     @quantity.setter
-    def quantity(self, new_quantity):
-        if new_quantity >= 0:
-            self._quantity = new_quantity
+    def quantity(self, value):
+        if value >= 0:
+            self._quantity = value
         else:
             print("Количество не может быть отрицательным.")
 
@@ -42,7 +42,7 @@ class Product:
             name=product_dict["name"],
             description=product_dict["description"],
             price=product_dict["price"],
-            quantity=product_dict["quantity"],
+            quantity=product_dict["quantity"]
         )
 
 

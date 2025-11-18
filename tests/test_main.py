@@ -6,8 +6,8 @@ def test_product_initialization():
     product = Product("Телефон", "Описание", 999.99, 10)
     assert product.name == "Телефон"
     assert product.description == "Описание"
-    assert product.price == 999.99
-    assert product.quantity == 10
+    assert product.price == 999.99  # через property
+    assert product._quantity == 10
 
 def test_category_initialization():
     product1 = Product("Телефон 1", "Описание 1", 500.0, 5)
@@ -15,12 +15,12 @@ def test_category_initialization():
     category = Category("Категория телефонов", "Описание категории", [product1, product2])
     assert category.name == "Категория телефонов"
     assert category.description == "Описание категории"
-    # Проверка строкового отображения
     expected_output = (
         f"{product1.name}, {product1.price} руб. Остаток: {product1.quantity} шт.\n"
         f"{product2.name}, {product2.price} руб. Остаток: {product2.quantity} шт.\n"
     )
     assert category.products == expected_output
+
 
 def test_counts_increment():
     initial_category_count = Category.category_count
@@ -65,7 +65,7 @@ def test_new_product_method():
     assert product.name == "NewProd"
     assert product.description == "desc"
     assert product.price == 200
-    assert product.quantity == 5
+    assert product._quantity == 5
 
 def test_add_product_increases_count():
     category = Category("TestCat", "desc", [])
@@ -85,6 +85,7 @@ def test_products_property():
     assert "10 руб" in output
     assert "20 руб" in output
 
+
 def test_add_duplicate_product():
     product = Product("Dup", "desc", 100, 1)
     category = Category("Cat", "desc", [product])
@@ -100,9 +101,11 @@ def test_category_with_empty_products():
 def test_set_negative_quantity():
     product = Product("Test", "desc", 100, 5)
     product.quantity = -3
-    assert product.quantity == 5  # Количество не должно измениться
+    # Количество не должно измениться
+    assert product.quantity == 5
 
 def test_set_negative_price():
     product = Product("Test", "desc", 100, 5)
     product.price = -10
-    assert product.price == 100  # Цена не должна измениться
+    # Цена не должна измениться
+    assert product.price == 100
