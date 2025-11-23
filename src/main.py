@@ -1,7 +1,29 @@
-class Product:
-    def __init__(self, name: str, description: str, price: float, quantity: int):
+from abc import ABC, abstractmethod
+
+
+# Миксин, выводящий информацию при создании объекта
+class CreatorInfoMixin:
+    def __init__(self, *args, **kwargs):
+        print(f"Создан объект класса {self.__class__.__name__} с параметрами: {args} {kwargs}")
+        super().__init__(*args, **kwargs)
+
+
+# Абстрактный базовый класс
+class BaseProduct(ABC):
+    @abstractmethod
+    def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+
+# Основной класс продукта, наследует миксин и базовый абстрактный класс
+class Product(CreatorInfoMixin, BaseProduct):
+    def __init__(self, name: str, description: str, price: float, quantity: int):
+        super().__init__(name, description)
         self.__price = price
         self._quantity = quantity
 
@@ -36,12 +58,17 @@ class Product:
         return f"{self.name}, {self.__price} руб. Остаток: {self._quantity} шт."
 
     def __add__(self, other):
-        if type(self) != type(other):
-            raise TypeError("Нельзя складывать объекты разных классов.")
-        total_price = self.__price * self._quantity + other.__price * other._quantity
-        return total_price
+        if isinstance(self, type(other)):
+            total_price = self.__price * self._quantity + other.__price * other._quantity
+            return total_price
+        raise TypeError("Нельзя складывать объекты разных классов.")
+
+    @classmethod
+    def new_product(cls, data: dict):
+        return cls(**data)
 
 
+# Класс Smartphone наследует от Product
 class Smartphone(Product):
     def __init__(self, name, description, price, quantity, efficiency, model, memory, color):
         super().__init__(name, description, price, quantity)
@@ -52,13 +79,16 @@ class Smartphone(Product):
 
     def __str__(self):
         base_str = super().__str__()
-        return (f"{base_str}\n"
-                f"Производительность: {self.efficiency}\n"
-                f"Модель: {self.model}\n"
-                f"Объем памяти: {self.memory}GB\n"
-                f"Цвет: {self.color}")
+        return (
+            f"{base_str}\n"
+            f"Производительность: {self.efficiency}\n"
+            f"Модель: {self.model}\n"
+            f"Объем памяти: {self.memory}GB\n"
+            f"Цвет: {self.color}"
+        )
 
 
+# Класс LawnGrass наследует от Product
 class LawnGrass(Product):
     def __init__(self, name, description, price, quantity, country, germination_period, color):
         super().__init__(name, description, price, quantity)
@@ -68,12 +98,15 @@ class LawnGrass(Product):
 
     def __str__(self):
         base_str = super().__str__()
-        return (f"{base_str}\n"
-                f"Страна-производитель: {self.country}\n"
-                f"Срок прорастания: {self.germination_period}\n"
-                f"Цвет: {self.color}")
+        return (
+            f"{base_str}\n"
+            f"Страна-производитель: {self.country}\n"
+            f"Срок прорастания: {self.germination_period}\n"
+            f"Цвет: {self.color}"
+        )
 
 
+# Класс Category
 class Category:
     category_count = 0
     product_count = 0
@@ -90,9 +123,9 @@ class Category:
     def add_product(self, product):
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только объекты класса Product или его наследников.")
-        # Проверка на дублирование, если нужно
+        # Проверка на дублирование по имени
         if any(p.name == product.name for p in self.__products):
-            print(f"Продукт с именем {product.name} уже есть в категории.")
+            print(f"Продукт с названием {product.name} уже есть в категории.")
             return
         self.__products.append(product)
         self._product_count += 1
@@ -106,16 +139,16 @@ class Category:
     def product_list(self):
         return self.__products
 
-
     def __str__(self):
         return f"Категория: {self.name}\n{self.products}"
 
 
-# Тестовая часть, если запустить как main
+# Тестовая часть
 if __name__ == "__main__":
     # Создаем продукты
-    smartphone1 = Smartphone("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5, 95.5,
-                             "S23 Ultra", 256, "Серый")
+    smartphone1 = Smartphone(
+        "Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5, 95.5, "S23 Ultra", 256, "Серый"
+    )
     smartphone2 = Smartphone("Iphone 15", "512GB, Gray space", 210000.0, 8, 98.2, "15", 512, "Gray space")
     smartphone3 = Smartphone("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14, 90.3, "Note 11", 1024, "Синий")
 
