@@ -100,6 +100,7 @@ def test_set_negative_price():
     # Цена не должна измениться
     assert product.price == 100
 
+ homework-16.1
 
 def test_increase_price():
     product = Product("Test", "desc", 100, 10)
@@ -172,14 +173,34 @@ def test_add_product_increases_count():
     assert product in category._Category__products
 
 
+
+ develop
 def test_product_str():
     product = Product("Тест", "Описание", 999.99, 5)
     expected_str = "Тест, 999.99 руб. Остаток: 5 шт."
     assert str(product) == expected_str
+ homework-16.1
 
+def test_category_str():
+    p1 = Product("П1", "desc", 100, 2)
+    p2 = Product("П2", "desc", 200, 3)
+    category = Category("Категория", "desc", [p1, p2])
+    output = str(category)
+    total_quantity = p1.quantity + p2.quantity
+    assert "Категория" in output
+    assert f"количество продуктов: {total_quantity} шт." in output
+ develop
 
 def test_product_add():
     p1 = Product("A", "desc", 10, 3)  # 30
     p2 = Product("B", "desc", 20, 2)  # 40
     total = p1 + p2
     assert total == 70
+homework-16.1
+
+
+def test_product_add_with_non_product():
+    p = Product("A", "desc", 10, 3)
+    result = p.__add__(123)
+    assert result is NotImplemented or result is None
+ develop
