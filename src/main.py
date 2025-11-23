@@ -3,7 +3,7 @@ class Product:
         self.name = name
         self.description = description
         self.__price = price  # приватный атрибут цены с двойным подчеркиванием
-        self._quantity = quantity  # при необходимости тоже можно сделать приватным
+        self._quantity = quantity  # защищенный или приватный атрибут количества
 
     @property
     def price(self):
@@ -45,6 +45,14 @@ class Product:
             quantity=product_dict["quantity"]
         )
 
+    def __str__(self):
+        return f"{self.name}, {self.__price} руб. Остаток: {self._quantity} шт."
+
+    def __add__(self, other):
+        if not isinstance(other, Product):
+            return NotImplemented
+        return self.__price * self._quantity + other.__price * other._quantity
+
 
 class Category:
     category_count = 0
@@ -69,38 +77,42 @@ class Category:
 
     @property
     def products(self):
-        # Форматированный вывод товаров
-        return "".join(f"{p.name}, {p.price} руб. Остаток: {p.quantity} шт.\n" for p in self.__products)
+        # Возвращает строковое представление списка товаров
+        return "".join(f"{p}\n" for p in self.__products)
+
+    def __str__(self):
+        total_quantity = sum(p.quantity for p in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
 
 
 # --- Тестирование --- #
-if __name__ == "__main__":
-    # Создаем товары
+if __name__ == '__main__':
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
     product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
     product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
 
-    # Создаем категорию и добавляем товары
+    print(str(product1))
+    print(str(product2))
+    print(str(product3))
+
     category1 = Category(
         "Смартфоны",
         "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
-        [product1, product2, product3],
+        [product1, product2, product3]
     )
 
-    # Выводим список товаров
+    print(str(category1))
     print(category1.products)
 
-    # Добавляем новый товар
+    # Добавляем новый продукт
     product4 = Product('55" QLED 4K', "Фоновая подсветка", 123000.0, 7)
     category1.add_product(product4)
-
-    # Проверяем обновленный список товаров
     print(category1.products)
 
     # Количество товаров в категории
     print(f"Общее количество товаров: {category1._product_count}")
 
-    # Создаем товар через класс-метод new_product
+    # Создаем товар через класс-метод
     new_product = Product.new_product(
         {
             "name": "Samsung Galaxy S23 Ultra",
@@ -110,7 +122,6 @@ if __name__ == "__main__":
         }
     )
 
-    # Выводим информацию о новом товаре
     print(new_product.name)
     print(new_product.description)
     print(new_product.price)
@@ -135,3 +146,8 @@ if __name__ == "__main__":
     # Попытка установить отрицательное количество
     new_product.quantity = -3
     print(f"После попытки установить отрицательное количество: {new_product.quantity}")
+
+    # Тесты сложения
+    print(product1 + product2)  # 180000*5 + 210000*8
+    print(product1 + product3)
+    print(product2 + product3)
