@@ -1,15 +1,14 @@
 import pytest
 from unittest.mock import patch
-from src.main import Product, Category
+from src.main import Product, Category, Smartphone, LawnGrass, BaseProduct
 
 
 def test_product_initialization():
     product = Product("Телефон", "Описание", 999.99, 10)
     assert product.name == "Телефон"
     assert product.description == "Описание"
-    assert product.price == 999.99  # через property
+    assert product.price == 999.99
     assert product._quantity == 10
-
 
 def test_counts_increment():
     initial_category_count = Category.category_count
@@ -25,7 +24,6 @@ def test_counts_increment():
 @patch("builtins.input", return_value="y")
 def test_price_reduction_confirm(mock_input):
     product = Product("Test", "desc", 100, 10)
-    # Снижаем цену ниже текущей, подтверждение 'y'
     product.price = 50
     assert product.price == 50
 
@@ -34,32 +32,38 @@ def test_price_reduction_confirm(mock_input):
 def test_price_reduction_cancel(mock_input):
     product = Product("Test", "desc", 100, 10)
     old_price = product.price
-    # Снижаем цену ниже текущей, подтверждение 'n'
     product.price = 50
-    # Цена не должна измениться
     assert product.price == old_price
 
 
 def test_price_negative_value():
     product = Product("Test", "desc", 100, 10)
-    product.price = -50  # Некорректное изменение
+    product.price = -50
     assert product.price == 100  # Цена не должна измениться
 
 
 def test_new_product_method():
+
+    data = {
+        "name": "NewProd",
+        "description": "desc",
+        "price": 200,
+        "quantity": 5
+    }
+    product = Product(**data)
+=======
     # если метода staticmethod нет, создавайте напрямую
     data = {"name": "NewProd", "description": "desc", "price": 200, "quantity": 5}
     product = Product(**data)  # или Product.new_product(data), если есть
+
     assert isinstance(product, Product)
     assert product.name == "NewProd"
-
 
 def test_add_duplicate_product():
     product = Product("Dup", "desc", 100, 1)
     category = Category("Cat", "desc", [product])
     initial_count = len(category._Category__products)
     category.add_product(product)
-    # если добавление повторных объектов не запрещено, то длина увеличится
     assert len(category._Category__products) == initial_count
 
 
@@ -73,12 +77,11 @@ def test_products_property():
     assert "10 руб" in output
     assert "20 руб" in output
 
-
 def test_add_duplicate_product():
     category = Category("Test", "desc", [])
     product = Product("Item", "desc", 100, 1)
     category.add_product(product)
-    category.add_product(product)  # добавляем дубликат
+    category.add_product(product)  # дубли
     assert len(category.product_list) == 1
 
 
@@ -90,14 +93,12 @@ def test_category_with_empty_products():
 def test_set_negative_quantity():
     product = Product("Test", "desc", 100, 5)
     product.quantity = -3
-    # Количество не должно измениться
     assert product.quantity == 5
 
 
 def test_set_negative_price():
     product = Product("Test", "desc", 100, 5)
     product.price = -10
-    # Цена не должна измениться
     assert product.price == 100
 
 
@@ -118,8 +119,7 @@ def test_add_multiple_same_products():
     product = Product("Same", "desc", 50, 2)
     category = Category("Test", "desc", [])
     category.add_product(product)
-    category.add_product(product)  # Дублирование
-    # количество не увеличится, так как дубликаты не добавляются
+    category.add_product(product)
     assert len(category.product_list) == 1
 
 
@@ -151,7 +151,6 @@ def test_change_quantity():
     product.quantity = 10
     assert product.quantity == 10
     product.quantity = -3
-    # Количество не изменится
     assert product.quantity == 10
 
 
@@ -161,6 +160,44 @@ def test_str_representation_of_product():
     assert "Test" in s
     assert "100 руб" in s
     assert "Остаток" in s
+
+
+# Новые тесты для новых классов и миксина
+def test_baseproduct_is_abstract():
+    import abc
+    with pytest.raises(TypeError):
+        BaseProduct()
+
+def test_product_inherits_from_baseproduct():
+    product = Product("Test", "desc", 50, 1)
+    assert isinstance(product, BaseProduct)
+
+def test_smartphone_str():
+    sp = Smartphone("Phone", "desc", 1000, 3, 80.5, "ModelX", 128, "Red")
+    s_str = str(sp)
+    assert "Производительность" in s_str
+    assert "Модель" in s_str
+    assert "Объем памяти" in s_str
+
+def test_lawn_grass_str():
+    grass = LawnGrass("Grass", "desc", 50, 10, "USA", "5 days", "Green")
+    s_str = str(grass)
+    assert "Страна-производитель" in s_str
+    assert "Срок прорастания" in s_str
+
+def test_creator_info_mixin_print(capsys):
+    # Создадим объект и проверим, что выводится сообщение
+    product = Product("Test", "desc", 100, 1)
+    captured = capsys.readouterr()
+    assert "Создан объект класса Product" in captured.out
+    # Аналогично для Smartphone
+    smartphone = Smartphone("Smart", "desc", 500, 2, 90, "ModelY", 64, "Blue")
+    captured = capsys.readouterr()
+    assert "Создан объект класса Smartphone" in captured.out
+    # Для LawnGrass
+    grass = LawnGrass("Grass", "desc", 30, 5, "Canada", "7 days", "Dark Green")
+    captured = capsys.readouterr()
+    assert "Создан объект класса LawnGrass" in captured.out
 
 
 def test_add_product_increases_count():
