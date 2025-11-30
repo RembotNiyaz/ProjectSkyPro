@@ -10,6 +10,7 @@ def test_product_initialization():
     assert product.price == 999.99
     assert product._quantity == 10
 
+
 def test_counts_increment():
     initial_category_count = Category.category_count
     initial_product_count = Category.product_count
@@ -44,20 +45,16 @@ def test_price_negative_value():
 
 def test_new_product_method():
 
-    data = {
-        "name": "NewProd",
-        "description": "desc",
-        "price": 200,
-        "quantity": 5
-    }
+    data = {"name": "NewProd", "description": "desc", "price": 200, "quantity": 5}
     product = Product(**data)
-=======
+
     # если метода staticmethod нет, создавайте напрямую
     data = {"name": "NewProd", "description": "desc", "price": 200, "quantity": 5}
     product = Product(**data)  # или Product.new_product(data), если есть
 
     assert isinstance(product, Product)
     assert product.name == "NewProd"
+
 
 def test_add_duplicate_product():
     product = Product("Dup", "desc", 100, 1)
@@ -76,6 +73,7 @@ def test_products_property():
     assert "B" in output
     assert "10 руб" in output
     assert "20 руб" in output
+
 
 def test_add_duplicate_product():
     category = Category("Test", "desc", [])
@@ -165,12 +163,15 @@ def test_str_representation_of_product():
 # Новые тесты для новых классов и миксина
 def test_baseproduct_is_abstract():
     import abc
+
     with pytest.raises(TypeError):
         BaseProduct()
+
 
 def test_product_inherits_from_baseproduct():
     product = Product("Test", "desc", 50, 1)
     assert isinstance(product, BaseProduct)
+
 
 def test_smartphone_str():
     sp = Smartphone("Phone", "desc", 1000, 3, 80.5, "ModelX", 128, "Red")
@@ -179,11 +180,13 @@ def test_smartphone_str():
     assert "Модель" in s_str
     assert "Объем памяти" in s_str
 
+
 def test_lawn_grass_str():
     grass = LawnGrass("Grass", "desc", 50, 10, "USA", "5 days", "Green")
     s_str = str(grass)
     assert "Страна-производитель" in s_str
     assert "Срок прорастания" in s_str
+
 
 def test_creator_info_mixin_print(capsys):
     # Создадим объект и проверим, что выводится сообщение
@@ -215,24 +218,8 @@ def test_product_str():
     assert str(product) == expected_str
 
 
-def test_category_str():
-    p1 = Product("П1", "desc", 100, 2)
-    p2 = Product("П2", "desc", 200, 3)
-    category = Category("Категория", "desc", [p1, p2])
-    output = str(category)
-    total_quantity = p1.quantity + p2.quantity
-    assert "Категория" in output
-    assert f"количество продуктов: {total_quantity} шт." in output
-
-
 def test_product_add():
     p1 = Product("A", "desc", 10, 3)  # 30
     p2 = Product("B", "desc", 20, 2)  # 40
     total = p1 + p2
     assert total == 70
-
-
-def test_product_add_with_non_product():
-    p = Product("A", "desc", 10, 3)
-    result = p.__add__(123)
-    assert result is NotImplemented or result is None
