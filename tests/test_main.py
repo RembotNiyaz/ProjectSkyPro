@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch
 from src.main import Product, Category, Smartphone, LawnGrass, BaseProduct
 
+
 def test_product_initialization():
     product = Product("Телефон", "Описание", 999.99, 10)
     assert product.name == "Телефон"
@@ -19,25 +20,30 @@ def test_counts_increment():
     assert Category.category_count == initial_category_count + 1
     assert Category.product_count == initial_product_count + 1
 
-@patch('builtins.input', return_value='y')
+
+@patch("builtins.input", return_value="y")
 def test_price_reduction_confirm(mock_input):
     product = Product("Test", "desc", 100, 10)
     product.price = 50
     assert product.price == 50
 
-@patch('builtins.input', return_value='n')
+
+@patch("builtins.input", return_value="n")
 def test_price_reduction_cancel(mock_input):
     product = Product("Test", "desc", 100, 10)
     old_price = product.price
     product.price = 50
     assert product.price == old_price
 
+
 def test_price_negative_value():
     product = Product("Test", "desc", 100, 10)
     product.price = -50
     assert product.price == 100  # Цена не должна измениться
 
+
 def test_new_product_method():
+
     data = {
         "name": "NewProd",
         "description": "desc",
@@ -45,6 +51,11 @@ def test_new_product_method():
         "quantity": 5
     }
     product = Product(**data)
+=======
+    # если метода staticmethod нет, создавайте напрямую
+    data = {"name": "NewProd", "description": "desc", "price": 200, "quantity": 5}
+    product = Product(**data)  # или Product.new_product(data), если есть
+
     assert isinstance(product, Product)
     assert product.name == "NewProd"
 
@@ -54,6 +65,7 @@ def test_add_duplicate_product():
     initial_count = len(category._Category__products)
     category.add_product(product)
     assert len(category._Category__products) == initial_count
+
 
 def test_products_property():
     product1 = Product("A", "desc", 10, 1)
@@ -72,30 +84,36 @@ def test_add_duplicate_product():
     category.add_product(product)  # дубли
     assert len(category.product_list) == 1
 
+
 def test_category_with_empty_products():
     category = Category("EmptyCategory", "desc", [])
     assert category.products == ""
+
 
 def test_set_negative_quantity():
     product = Product("Test", "desc", 100, 5)
     product.quantity = -3
     assert product.quantity == 5
 
+
 def test_set_negative_price():
     product = Product("Test", "desc", 100, 5)
     product.price = -10
     assert product.price == 100
+
 
 def test_increase_price():
     product = Product("Test", "desc", 100, 10)
     product.price = 150
     assert product.price == 150
 
-@patch('builtins.input', return_value='y')
+
+@patch("builtins.input", return_value="y")
 def test_price_increase_with_confirmation(mock_input):
     product = Product("Test", "desc", 100, 10)
     product.price = 120
     assert product.price == 120
+
 
 def test_add_multiple_same_products():
     product = Product("Same", "desc", 50, 2)
@@ -104,6 +122,7 @@ def test_add_multiple_same_products():
     category.add_product(product)
     assert len(category.product_list) == 1
 
+
 def test_category_str_contains_name_and_products():
     product = Product("Item", "desc", 100, 1)
     category = Category("MyCategory", "desc", [product])
@@ -111,10 +130,12 @@ def test_category_str_contains_name_and_products():
     assert "MyCategory" in output
     assert "Item" in output
 
+
 def test_add_product_raises_type_error():
     category = Category("Test", "desc", [])
     with pytest.raises(TypeError):
         category.add_product("Not a product")
+
 
 def test_product_list_is_list_of_products():
     product1 = Product("A", "desc", 10, 1)
@@ -124,6 +145,7 @@ def test_product_list_is_list_of_products():
     assert isinstance(plist, list)
     assert all(isinstance(p, Product) for p in plist)
 
+
 def test_change_quantity():
     product = Product("Test", "desc", 100, 5)
     product.quantity = 10
@@ -131,12 +153,14 @@ def test_change_quantity():
     product.quantity = -3
     assert product.quantity == 10
 
+
 def test_str_representation_of_product():
     product = Product("Test", "desc", 100, 5)
     s = str(product)
     assert "Test" in s
     assert "100 руб" in s
     assert "Остаток" in s
+
 
 # Новые тесты для новых классов и миксина
 def test_baseproduct_is_abstract():
@@ -174,3 +198,41 @@ def test_creator_info_mixin_print(capsys):
     grass = LawnGrass("Grass", "desc", 30, 5, "Canada", "7 days", "Dark Green")
     captured = capsys.readouterr()
     assert "Создан объект класса LawnGrass" in captured.out
+
+
+def test_add_product_increases_count():
+    category = Category("TestCat", "desc", [])
+    initial_product_count = Category.product_count
+    product = Product("A", "desc", 10, 1)
+    category.add_product(product)
+    assert Category.product_count == initial_product_count + 1
+    assert product in category._Category__products
+
+
+def test_product_str():
+    product = Product("Тест", "Описание", 999.99, 5)
+    expected_str = "Тест, 999.99 руб. Остаток: 5 шт."
+    assert str(product) == expected_str
+
+
+def test_category_str():
+    p1 = Product("П1", "desc", 100, 2)
+    p2 = Product("П2", "desc", 200, 3)
+    category = Category("Категория", "desc", [p1, p2])
+    output = str(category)
+    total_quantity = p1.quantity + p2.quantity
+    assert "Категория" in output
+    assert f"количество продуктов: {total_quantity} шт." in output
+
+
+def test_product_add():
+    p1 = Product("A", "desc", 10, 3)  # 30
+    p2 = Product("B", "desc", 20, 2)  # 40
+    total = p1 + p2
+    assert total == 70
+
+
+def test_product_add_with_non_product():
+    p = Product("A", "desc", 10, 3)
+    result = p.__add__(123)
+    assert result is NotImplemented or result is None
