@@ -223,3 +223,14 @@ def test_product_add():
     p2 = Product("B", "desc", 20, 2)  # 40
     total = p1 + p2
     assert total == 70
+
+def test_middle_price_empty_category():
+    empty_category = Category("Empty", "desc", [])
+    assert empty_category.middle_price() == 0
+
+def test_middle_price_with_products():
+    p1 = Product("A", "desc", 100, 2)  # цена 100
+    p2 = Product("B", "desc", 200, 3)  # цена 200
+    cat = Category("TestCat", "desc", [p1, p2])
+    expected = (100 + 200) / 2  # 150.0
+    assert cat.middle_price() == expected

@@ -20,10 +20,13 @@ class BaseProduct(ABC):
         pass
 
 
-# Основной класс продукта, наследует миксин и базовый абстрактный класс
+# Основной класс продукта
 class Product(CreatorInfoMixin, BaseProduct):
     def __init__(self, name: str, description: str, price: float, quantity: int):
         super().__init__(name, description)
+        # Задание 1: выбрасываем исключение, если количество равно нулю
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
         self.__price = price
         self._quantity = quantity
 
@@ -142,72 +145,52 @@ class Category:
     def __str__(self):
         return f"Категория: {self.name}\n{self.products}"
 
+    # Задание 2: Реализовать метод подсчета среднего ценника
+    def middle_price(self):
+        try:
+            total = sum(p.price for p in self.__products)
+            count = len(self.__products)
+            if count == 0:
+                return 0
+            return total / count
+        except ZeroDivisionError:
+            # Обработка деления на ноль
+            return 0
+
 
 # Тестовая часть
 if __name__ == "__main__":
+    # Попытка создать продукт с нулевым количеством (задание 1)
+    try:
+        product_invalid = Product("Бракованный товар", "Неверное количество", 1000.0, 0)
+    except ValueError as e:
+        print(
+            "Возникла ошибка ValueError прерывающая работу программы при попытке добавить продукт с нулевым количеством"
+        )
+    else:
+        print("Не возникла ошибка ValueError при попытке добавить продукт с нулевым количеством")
+
     # Создаем продукты
-    smartphone1 = Smartphone(
-        "Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5, 95.5, "S23 Ultra", 256, "Серый"
-    )
-    smartphone2 = Smartphone("Iphone 15", "512GB, Gray space", 210000.0, 8, 98.2, "15", 512, "Gray space")
-    smartphone3 = Smartphone("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14, 90.3, "Note 11", 1024, "Синий")
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
 
-    print(smartphone1)
-    print()
-    print(smartphone2)
-    print()
-    print(smartphone3)
-    print()
+    # Создаем категорию с товарами
+    category1 = Category("Смартфоны", "Категория смартфонов", [product1, product2, product3])
 
-    grass1 = LawnGrass("Газонная трава", "Элитная трава для газона", 500.0, 20, "Россия", "7 дней", "Зеленый")
-    grass2 = LawnGrass("Газонная трава 2", "Выносливая трава", 450.0, 15, "США", "5 дней", "Темно-зеленый")
+    # Тест метода middle_price
+    print("Средний ценник товаров в категории:", category1.middle_price())
 
-    print(grass1)
-    print()
-    print(grass2)
-    print()
+    # Создаем пустую категорию
+    category_empty = Category("Пустая категория", "Категория без продуктов", [])
+    print("Средний ценник в пустой категории:", category_empty.middle_price())
 
-    # Проверка сложения
+    # Проверка исключения при делении на ноль (у пустой категории)
+    # (должен вернуть 0)
+
+    # Дополнительно:
+    # Попытка создать товар с нулевым количеством (задание 1)
     try:
-        smartphone_sum = smartphone1 + smartphone2
-        print("Общая стоимость смартфонов:", smartphone_sum)
-    except TypeError as e:
-        print(e)
-
-    try:
-        grass_sum = grass1 + grass2
-        print("Общая стоимость травы:", grass_sum)
-    except TypeError as e:
-        print(e)
-
-    # Попытка сложить разные классы
-    try:
-        invalid_sum = smartphone1 + grass1
-    except TypeError:
-        print("Возникла ошибка TypeError при попытке сложения смартфона и травы.")
-
-    # Создаем категории
-    category_smartphones = Category("Смартфоны", "Высокотехнологичные смартфоны", [smartphone1, smartphone2])
-    category_grass = Category("Газонная трава", "Различные виды газонной травы", [grass1, grass2])
-
-    print("\nКатегории и их содержимое:")
-    print(category_smartphones)
-    print()
-    print(category_grass)
-    print()
-
-    # Добавление продукта
-    category_smartphones.add_product(smartphone3)
-    print("После добавления нового смартфона:")
-    print(category_smartphones)
-    print()
-
-    # Попытка добавить неподходящий объект
-    try:
-        category_smartphones.add_product("Не продукт")
-    except TypeError as e:
-        print("Ошибка при добавлении не продукта:", e)
-
-    # Проверка счетчиков
-    print("\nОбщее количество категорий:", Category.category_count)
-    print("Общее количество продуктов:", Category.product_count)
+        product_invalid2 = Product("Товар", "Описание", 100, 0)
+    except ValueError as e:
+        print("Обработка исключения для товара с нулевым количеством прошла успешно.")
