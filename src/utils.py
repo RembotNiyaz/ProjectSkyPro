@@ -1,4 +1,4 @@
-from models import Airplane
+from src.models import Airplane
 
 
 def filter_by_country(airplanes, country_list):

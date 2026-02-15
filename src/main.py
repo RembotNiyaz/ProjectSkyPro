@@ -1,7 +1,7 @@
-from api import OpenStreetMapAPI, OpenSkyAPI
-from models import Airplane
-from file_savers import JSONFileSaver
-from utils import filter_by_country, get_top_n, get_airplanes_in_altitude_range, sort_by_altitude
+from src.api import OpenStreetMapAPI, OpenSkyAPI
+from src.models import Airplane
+from src.file_savers import JSONFileSaver
+from src.utils import filter_by_country, get_top_n
 
 
 def user_interaction():
